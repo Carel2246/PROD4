@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* === NMI Custom Utility Classes === */
+
+.bg-page {
+  @apply bg-nmi-light min-h-screen p-4;
+}
+
+.page-title {
+  @apply text-xl font-bold text-nmi-dark mb-4;
+}
+
+.table-header {
+  @apply bg-nmi-dark text-nmi-accent text-left p-3 border-b;
+}
+
+.table-cell {
+  @apply p-3 border-b;
+}
+
+.card {
+  @apply bg-white rounded shadow border overflow-x-auto;
+}
+
+.app-header {
+  @apply bg-nmi-dark text-nmi-accent text-lg font-bold px-4 py-3;
+}
