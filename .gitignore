@@ -1,0 +1,13 @@
+# Node
+node_modules
+dist
+
+# Python
+scheduler/venv/
+__pycache__/
+
+# VSCode
+.vscode/
+
+# Environment files
+.env
