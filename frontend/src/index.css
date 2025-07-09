@@ -27,3 +27,7 @@
 .app-header {
   @apply bg-nmi-dark text-nmi-accent text-lg font-bold px-4 py-3;
 }
+
+.form-input {
+  @apply border bg-nmi-light rounded p-2 w-full;
+}

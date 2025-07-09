@@ -42,6 +42,7 @@ Prod4/
 ├── frontend/ # React frontend with Tailwind
 │ └── src/
 └── components
+└── Layout.tsx # Template for the header and burger menu of all pages
 └── pages
 │ ├── main.tsx # Entry point
 │ └── index.css # All styling must come from here - NONE inline

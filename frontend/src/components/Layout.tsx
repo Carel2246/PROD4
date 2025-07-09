@@ -8,6 +8,7 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
 
   return (
     <div className="bg-page min-h-screen">
@@ -38,6 +39,76 @@ export default function Layout({ children }: LayoutProps) {
               >
                 Tuisblad
               </Link>
+            </li>
+            <li>
+              <Link
+                to="/produksieplanne"
+                className="text-nmi-dark hover:text-nmi-accent"
+                onClick={() => setMenuOpen(false)}
+              >
+                Planne
+              </Link>
+            </li>
+            <li>
+              <button
+                className="text-nmi-dark font-semibold w-full text-left focus:outline-none"
+                onClick={() => setSetupOpen((open) => !open)}
+              >
+                Setup
+              </button>
+              {setupOpen && (
+                <ul className="ml-4 mt-1 space-y-1 bg-white border-l-2 border-nmi-accent shadow-lg absolute left-44 top-0 p-2 min-w-[140px]">
+                  <li>
+                    <Link
+                      to="/werksure"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setSetupOpen(false);
+                      }}
+                    >
+                      Werksure
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/verlof"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setSetupOpen(false);
+                      }}
+                    >
+                      Verlof
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/hulpbronne"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setSetupOpen(false);
+                      }}
+                    >
+                      Hulpbronne
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/groepe"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setSetupOpen(false);
+                      }}
+                    >
+                      Groepe
+                    </Link>
+                  </li>
+                  {/* Add more setup items here */}
+                </ul>
+              )}
             </li>
             {/* Add more nav items here */}
           </ul>
