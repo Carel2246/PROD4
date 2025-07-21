@@ -107,4 +107,77 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post("/duplicate", async (req, res) => {
+  const { source_job_number, new_job_number } = req.body;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1. Copy job details
+    const jobRes = await client.query(
+      `SELECT description, order_date, promised_date, quantity, price_each, customer
+       FROM job WHERE job_number = $1`,
+      [source_job_number]
+    );
+    if (jobRes.rows.length === 0) throw new Error("Source job not found");
+
+    await client.query(
+      `INSERT INTO job (job_number, description, order_date, promised_date, quantity, price_each, customer, completed, blocked)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, false)`,
+      [
+        new_job_number,
+        jobRes.rows[0].description,
+        jobRes.rows[0].order_date,
+        jobRes.rows[0].promised_date,
+        jobRes.rows[0].quantity,
+        jobRes.rows[0].price_each,
+        jobRes.rows[0].customer,
+      ]
+    );
+
+    // 2. Copy tasks
+    const tasksRes = await client.query(
+      `SELECT * FROM task WHERE job_number = $1`,
+      [source_job_number]
+    );
+
+    for (const t of tasksRes.rows) {
+      // Update task_number and predecessors for new job
+      const new_task_number = t.task_number.replace(source_job_number, new_job_number);
+
+      // Update predecessors: replace all source_job_number-xx with new_job_number-xx
+      let new_predecessors = t.predecessors;
+      if (new_predecessors) {
+        new_predecessors = new_predecessors
+          .split(",")
+          .map((p: string) => p.trim().replace(source_job_number, new_job_number))
+          .filter((p: string) => p.length > 0)
+          .join(",");
+      }
+
+      await client.query(
+        `INSERT INTO task (job_number, task_number, description, setup_time, time_each, predecessors, resources, completed, completed_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, false, NULL)`,
+        [
+          new_job_number,
+          new_task_number,
+          t.description,
+          t.setup_time,
+          t.time_each,
+          new_predecessors,
+          t.resources,
+        ]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.json({ success: true });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Failed to duplicate job" });
+  } finally {
+    client.release();
+  }
+});
+
 export default router;

@@ -160,10 +160,30 @@ export default function Produksieplanne() {
               </button>
               <button
                 className="px-4 py-2 bg-nmi-accent text-white rounded"
-                onClick={() => {
-                  console.log("Dupliseer na:", newJobNumber);
-                  setShowDuplicateModal(false);
+                onClick={async () => {
+                  setCreatingJob(true);
+                  const res = await fetch(
+                    "http://localhost:5000/api/jobs/duplicate",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        source_job_number: selectedJob,
+                        new_job_number: newJobNumber,
+                      }),
+                    }
+                  );
+                  if (res.ok) {
+                    setShowDuplicateModal(false);
+                    setSelectedJob(newJobNumber);
+                    setNewJobNumber("");
+                    fetchJobs();
+                  } else {
+                    alert("Kon nie dupliseer nie.");
+                  }
+                  setCreatingJob(false);
                 }}
+                disabled={!newJobNumber || creatingJob}
               >
                 Dupliseer
               </button>

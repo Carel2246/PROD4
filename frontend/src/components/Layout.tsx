@@ -9,11 +9,12 @@ type LayoutProps = {
 export default function Layout({ children }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
+  const [verslaeOpen, setVerslaeOpen] = useState(false);
 
   return (
     <div className="bg-page min-h-screen">
       {/* Page Header */}
-      <header className="app-header flex justify-between items-center">
+      <header className="app-header flex justify-between items-center fixed top-0 left-0 w-full bg-white z-20 shadow">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -29,7 +30,10 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Navigation Drawer */}
       {menuOpen && (
-        <nav className="bg-white shadow-md absolute z-10 w-48 p-4">
+        <nav
+          className="bg-white shadow-md absolute z-30 w-48 p-4"
+          style={{ top: "64px" }}
+        >
           <ul className="space-y-2">
             <li>
               <Link
@@ -49,6 +53,45 @@ export default function Layout({ children }: LayoutProps) {
                 Planne
               </Link>
             </li>
+            {/* Verslae fly-out menu */}
+            <li>
+              <button
+                className="text-nmi-dark font-semibold w-full text-left focus:outline-none"
+                onClick={() => setVerslaeOpen((open) => !open)}
+              >
+                Verslae
+              </button>
+              {verslaeOpen && (
+                <ul className="ml-4 mt-1 space-y-1 bg-white border-l-2 border-nmi-accent shadow-lg absolute left-44 top-0 p-2 min-w-[140px] z-40">
+                  <li>
+                    <Link
+                      to="/verslae/taaklys"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setVerslaeOpen(false);
+                      }}
+                    >
+                      Taaklys
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/verslae/skedule"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setVerslaeOpen(false);
+                      }}
+                    >
+                      Skedule
+                    </Link>
+                  </li>
+                  {/* Add more Verslae pages here */}
+                </ul>
+              )}
+            </li>
+            {/* Setup fly-out menu */}
             <li>
               <button
                 className="text-nmi-dark font-semibold w-full text-left focus:outline-none"
@@ -57,7 +100,7 @@ export default function Layout({ children }: LayoutProps) {
                 Setup
               </button>
               {setupOpen && (
-                <ul className="ml-4 mt-1 space-y-1 bg-white border-l-2 border-nmi-accent shadow-lg absolute left-44 top-0 p-2 min-w-[140px]">
+                <ul className="ml-4 mt-1 space-y-1 bg-white border-l-2 border-nmi-accent shadow-lg absolute left-44 top-0 p-2 min-w-[140px] z-40">
                   <li>
                     <Link
                       to="/werksure"
@@ -115,7 +158,7 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
       )}
 
-      <main className="pt-4 flex justify-center">
+      <main className="pt-16 flex justify-center">
         <div className="w-full max-w-screen-lg px-2 sm:px-6 lg:px-8">
           {children}
         </div>

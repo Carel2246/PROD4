@@ -8,6 +8,7 @@ import calendarRouter from "./routes/calendar";
 import holidaysRouter from "./routes/holidays";
 import resourcesRouter from "./routes/resources";
 import resourceGroupsRouter from "./routes/resourceGroups";
+import reportsRouter from "./routes/reports";
 import cors from "cors";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use("/api/calendar", calendarRouter);
 app.use("/api/holidays", holidaysRouter);
 app.use("/api/resources", resourcesRouter);
 app.use("/api/resource-groups", resourceGroupsRouter);
+app.use("/api/reports", reportsRouter);
 
 app.listen(port, () => {
   console.log(`API server running on http://localhost:${port}`);
