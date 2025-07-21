@@ -26,7 +26,9 @@ export default function Produksieplanne() {
   const [includeBlocked, setIncludeBlocked] = useState(false);
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newJobNumber, setNewJobNumber] = useState("");
+  const [creatingJob, setCreatingJob] = useState(false);
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null);
   const [activeTab, setActiveTab] = useState<"tasks" | "materials">("tasks");
 
@@ -65,7 +67,7 @@ export default function Produksieplanne() {
 
   const handleSelect = (jobNum: string) => {
     if (jobNum === "__create") {
-      console.log("Create new job...");
+      setShowCreateModal(true);
     } else if (jobNum === "__duplicate") {
       setShowDuplicateModal(true);
     } else {
@@ -164,6 +166,56 @@ export default function Produksieplanne() {
                 }}
               >
                 Dupliseer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === CREATE MODAL === */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded shadow p-6 w-96">
+            <h2 className="text-lg font-bold mb-4">Voeg nuwe plan by</h2>
+            <label className="block mb-2 text-sm">PP Nommer:</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full p-2 mb-4"
+              value={newJobNumber}
+              onChange={(e) => setNewJobNumber(e.target.value)}
+              disabled={creatingJob}
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 bg-nmi-light text-nmi-dark border rounded"
+                onClick={() => setShowCreateModal(false)}
+                disabled={creatingJob}
+              >
+                Kanselleer
+              </button>
+              <button
+                className="px-4 py-2 bg-nmi-accent text-white rounded"
+                onClick={async () => {
+                  setCreatingJob(true);
+                  // Create the job in the backend
+                  const res = await fetch("http://localhost:5000/api/jobs", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ job_number: newJobNumber }),
+                  });
+                  if (res.ok) {
+                    setShowCreateModal(false);
+                    setSelectedJob(newJobNumber);
+                    setNewJobNumber("");
+                    fetchJobs();
+                  } else {
+                    alert("Kon nie nuwe plan skep nie.");
+                  }
+                  setCreatingJob(false);
+                }}
+                disabled={!newJobNumber || creatingJob}
+              >
+                Skep
               </button>
             </div>
           </div>

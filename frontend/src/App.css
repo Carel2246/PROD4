@@ -1,3 +1,8 @@
+:root {
+  --nmi-green: #32b629; /* Completed task background */
+  --nmi-light: #5727c7cc; /* Uncompleted task background */
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +44,15 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* ✅ Custom background classes */
+.nmi-green {
+  background-color: var(--nmi-green);
+  color: white;
+}
+
+.bg-nmi-light {
+  background-color: var(--nmi-light);
+  color: black;
 }

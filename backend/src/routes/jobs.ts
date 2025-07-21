@@ -15,8 +15,6 @@ router.get("/incomplete", async (req, res) => {
   }
 });
 
-export default router;
-
 router.get("/dropdown", async (req, res) => {
   const includeCompleted = req.query.includeCompleted === "true";
   const includeBlocked = req.query.includeBlocked === "true";
@@ -93,3 +91,20 @@ router.get("/:jobNumber", async (req, res) => {
     res.status(500).json({ error: "Error fetching job" });
   }
 });
+
+router.post("/", async (req, res) => {
+  const { job_number } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO job (job_number, order_date, promised_date, quantity, price_each, completed, blocked)
+       VALUES ($1, NOW(), NOW(), 1, 0, false, false)
+       RETURNING *`,
+      [job_number]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create job" });
+  }
+});
+
+export default router;

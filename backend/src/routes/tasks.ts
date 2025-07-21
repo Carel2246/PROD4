@@ -23,30 +23,30 @@ router.post("/", async (req, res) => {
     job_number,
     task_number,
     description,
-    duration_hours,
-    dependencies,
-    resource_ids,
-    resource_group_ids,
-    start_at,
-    end_at,
+    setup_time,
+    time_each,
+    predecessors,
+    resources,
+    completed,
+    completed_at,
   } = req.body;
 
   try {
     const result = await pool.query(
       `INSERT INTO task
-        (job_number, task_number, description, duration_hours, dependencies, resource_ids, resource_group_ids, start_at, end_at)
+        (job_number, task_number, description, setup_time, time_each, predecessors, resources, completed, completed_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
         job_number,
         task_number,
         description,
-        duration_hours,
-        dependencies,
-        resource_ids,
-        resource_group_ids,
-        start_at,
-        end_at,
+        setup_time,
+        time_each,
+        predecessors,
+        resources,
+        completed ?? false,
+        completed_at,
       ]
     );
     res.json(result.rows[0]);
@@ -64,12 +64,12 @@ router.patch("/:taskId", async (req, res) => {
     "job_number",
     "task_number",
     "description",
-    "duration_hours",
-    "dependencies",
-    "resource_ids",
-    "resource_group_ids",
-    "start_at",
-    "end_at",
+    "setup_time",
+    "time_each",
+    "predecessors",
+    "resources",
+    "completed",
+    "completed_at",
   ];
 
   const fields = Object.keys(updates).filter((f) => editableFields.includes(f));
