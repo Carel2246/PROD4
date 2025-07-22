@@ -62,11 +62,25 @@ function savePredecessors(input: string, jobNumber: string): string[] {
     .map((seq) => `${jobNumber}-${seq}`);
 }
 
-export default function TaskTab({ jobNumber }: { jobNumber: string }) {
+export default function TaskTab({
+  jobNumber,
+  onJobStatusChange,
+  refreshTasksTrigger,
+}: {
+  jobNumber: string;
+  onJobStatusChange?: () => void;
+  refreshTasksTrigger?: boolean;
+}) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [groups, setGroups] = useState<ResourceGroup[]>([]);
   const [adding, setAdding] = useState(false);
+  const [editingDescriptions, setEditingDescriptions] = useState<{
+    [id: number]: string;
+  }>({});
+  const [editingPredecessors, setEditingPredecessors] = useState<{
+    [id: number]: string;
+  }>({});
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -106,7 +120,7 @@ export default function TaskTab({ jobNumber }: { jobNumber: string }) {
 
   useEffect(() => {
     fetchTasks();
-  }, [jobNumber]);
+  }, [jobNumber, refreshTasksTrigger]);
 
   // Update task
   const updateTask = (id: number, field: keyof Task, value: any) => {
@@ -124,7 +138,38 @@ export default function TaskTab({ jobNumber }: { jobNumber: string }) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: sendValue }),
-    }).catch(console.error);
+    })
+      .then(() => {
+        // After updating the task, fetch the latest tasks and update job status
+        fetch(`http://localhost:5000/api/tasks/by-job/${jobNumber}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const allCompleted = data.every((t: any) => !!t.completed);
+            fetch(`http://localhost:5000/api/jobs/${jobNumber}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ completed: allCompleted }),
+            })
+              .then(() => {
+                if (onJobStatusChange) onJobStatusChange();
+              })
+              .catch(console.error);
+            setTasks(
+              data
+                .map((t: any) => ({
+                  ...t,
+                  predecessors: parseStringArray(t.predecessors),
+                  resources: parseStringArray(t.resources),
+                }))
+                .sort(
+                  (a: any, b: any) =>
+                    parseInt(getSequence(a.task_number)) -
+                    parseInt(getSequence(b.task_number))
+                )
+            );
+          });
+      })
+      .catch(console.error);
   };
 
   // Sequence update
@@ -229,11 +274,40 @@ export default function TaskTab({ jobNumber }: { jobNumber: string }) {
                 </td>
                 <td className="p-2">
                   <input
-                    value={task.description}
+                    value={
+                      editingDescriptions[task.id] !== undefined
+                        ? editingDescriptions[task.id]
+                        : task.description
+                    }
                     className="form-input bg-nmi-light"
                     onChange={(e) =>
-                      updateTask(task.id, "description", e.target.value)
+                      setEditingDescriptions((prev) => ({
+                        ...prev,
+                        [task.id]: e.target.value,
+                      }))
                     }
+                    onBlur={() => {
+                      if (
+                        editingDescriptions[task.id] !== undefined &&
+                        editingDescriptions[task.id] !== task.description
+                      ) {
+                        updateTask(
+                          task.id,
+                          "description",
+                          editingDescriptions[task.id]
+                        );
+                      }
+                      setEditingDescriptions((prev) => {
+                        const copy = { ...prev };
+                        delete copy[task.id];
+                        return copy;
+                      });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.currentTarget.blur();
+                      }
+                    }}
                   />
                 </td>
                 <td className="p-2">
@@ -259,14 +333,44 @@ export default function TaskTab({ jobNumber }: { jobNumber: string }) {
                 <td className="p-2">
                   <input
                     className="form-input bg-nmi-light"
-                    value={displayPredecessors(task.predecessors)}
-                    onChange={(e) =>
-                      updateTask(
-                        task.id,
-                        "predecessors",
-                        savePredecessors(e.target.value, jobNumber)
-                      )
+                    value={
+                      editingPredecessors[task.id] !== undefined
+                        ? editingPredecessors[task.id]
+                        : displayPredecessors(task.predecessors)
                     }
+                    onChange={(e) =>
+                      setEditingPredecessors((prev) => ({
+                        ...prev,
+                        [task.id]: e.target.value,
+                      }))
+                    }
+                    onBlur={() => {
+                      if (
+                        editingPredecessors[task.id] !== undefined &&
+                        editingPredecessors[task.id] !==
+                          displayPredecessors(task.predecessors)
+                      ) {
+                        updateTask(
+                          task.id,
+                          "predecessors",
+                          savePredecessors(
+                            editingPredecessors[task.id],
+                            jobNumber
+                          )
+                        );
+                      }
+                      setEditingPredecessors((prev) => {
+                        const copy = { ...prev };
+                        delete copy[task.id];
+                        return copy;
+                      });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                    placeholder="bv. 1, 2, 3"
                   />
                 </td>
                 <td className="p-2">

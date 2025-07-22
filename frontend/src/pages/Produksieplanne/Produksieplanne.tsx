@@ -31,6 +31,8 @@ export default function Produksieplanne() {
   const [creatingJob, setCreatingJob] = useState(false);
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null);
   const [activeTab, setActiveTab] = useState<"tasks" | "materials">("tasks");
+  const [refreshTasksFlag, setRefreshTasksFlag] = useState(false);
+  const [priceEachInput, setPriceEachInput] = useState<string>("");
 
   // Fetch dropdown list of jobs
   const fetchJobs = () => {
@@ -65,6 +67,14 @@ export default function Produksieplanne() {
     fetchJobs();
   }, [includeCompleted, includeBlocked]);
 
+  useEffect(() => {
+    setPriceEachInput(
+      jobDetail && !isNaN(jobDetail.price_each)
+        ? jobDetail.price_each.toString().replace(".", ",")
+        : ""
+    );
+  }, [jobDetail]);
+
   const handleSelect = (jobNum: string) => {
     if (jobNum === "__create") {
       setShowCreateModal(true);
@@ -85,9 +95,40 @@ export default function Produksieplanne() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: value }),
-    }).catch((err) => {
-      console.error("Update failed:", err);
-    });
+    })
+      .then(() => {
+        // If the completed field was changed, update all tasks for this job
+        if (field === "completed") {
+          fetch(`http://localhost:5000/api/tasks/by-job/${selectedJob}`)
+            .then((res) => res.json())
+            .then((tasks) => {
+              Promise.all(
+                tasks.map((task: any) =>
+                  fetch(`http://localhost:5000/api/tasks/${task.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ completed: value }),
+                  })
+                )
+              ).then(() => {
+                setRefreshTasksFlag((f) => !f); // <-- trigger TaskTab refresh
+                refetchJobDetail();
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        console.error("Update failed:", err);
+      });
+  };
+
+  const refetchJobDetail = () => {
+    if (selectedJob) {
+      fetch(`http://localhost:5000/api/jobs/${selectedJob}`)
+        .then((res) => res.json())
+        .then(setJobDetail)
+        .catch(() => setJobDetail(null));
+    }
   };
 
   return (
@@ -313,17 +354,26 @@ export default function Produksieplanne() {
                 <input
                   type="text"
                   className="form-input bg-nmi-light"
-                  value={
-                    isNaN(jobDetail.price_each)
-                      ? ""
-                      : `R ${jobDetail.price_each.toFixed(2).replace(".", ",")}`
-                  }
+                  value={priceEachInput}
                   onChange={(e) => {
-                    const value = parseFloat(
-                      e.target.value.replace(/[^\d.]/g, "")
-                    );
-                    if (!isNaN(value)) updateField("price_each", value);
+                    setPriceEachInput(e.target.value);
                   }}
+                  onBlur={() => {
+                    // Replace comma with dot for decimal
+                    const val = priceEachInput.replace(",", ".");
+                    const num = parseFloat(val);
+                    if (!isNaN(num)) {
+                      updateField("price_each", num);
+                    } else if (priceEachInput.trim() === "") {
+                      updateField("price_each", 0); // Or null if you prefer
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  placeholder="R 0,00"
                 />
               </FormRow>
 
@@ -368,7 +418,11 @@ export default function Produksieplanne() {
               </button>
             </div>
             {activeTab === "tasks" && (
-              <TaskTab jobNumber={jobDetail.job_number} />
+              <TaskTab
+                jobNumber={jobDetail.job_number}
+                onJobStatusChange={refetchJobDetail}
+                refreshTasksTrigger={refreshTasksFlag}
+              />
             )}
             {activeTab === "materials" && (
               <MaterialTab jobNumber={jobDetail.job_number} />
