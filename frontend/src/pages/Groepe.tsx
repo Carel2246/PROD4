@@ -32,17 +32,17 @@ export default function Groepe() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/resource-groups")
+    fetch("/api/resource-groups")
       .then((res) => res.json())
       .then(setGroups);
-    fetch("http://localhost:5000/api/resources")
+    fetch("/api/resources")
       .then((res) => res.json())
       .then(setResources);
   }, []);
 
   const handleAdd = async () => {
     if (!newGroup.name) return;
-    const res = await fetch("http://localhost:5000/api/resource-groups", {
+    const res = await fetch("/api/resource-groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -72,7 +72,7 @@ export default function Groepe() {
   };
 
   const saveEdit = async (id: number) => {
-    await fetch(`http://localhost:5000/api/resource-groups/${id}`, {
+    await fetch(`/api/resource-groups/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -100,7 +100,7 @@ export default function Groepe() {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:5000/api/resource-groups/${id}`, {
+    await fetch(`/api/resource-groups/${id}`, {
       method: "DELETE",
     });
     setGroups((g) => g.filter((row) => row.id !== id));

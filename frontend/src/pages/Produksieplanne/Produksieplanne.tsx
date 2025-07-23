@@ -37,7 +37,7 @@ export default function Produksieplanne() {
   // Fetch dropdown list of jobs
   const fetchJobs = () => {
     const query = `?includeCompleted=${includeCompleted}&includeBlocked=${includeBlocked}`;
-    fetch(`http://localhost:5000/api/jobs/dropdown${query}`)
+    fetch(`/api/jobs/dropdown${query}`)
       .then((res) => res.json())
       .then((data) => {
         // Sort by job_number ascending
@@ -56,7 +56,7 @@ export default function Produksieplanne() {
       selectedJob !== "__create" &&
       selectedJob !== "__duplicate"
     ) {
-      fetch(`http://localhost:5000/api/jobs/${selectedJob}`)
+      fetch(`/api/jobs/${selectedJob}`)
         .then((res) => res.json())
         .then(setJobDetail)
         .catch(() => setJobDetail(null));
@@ -91,7 +91,7 @@ export default function Produksieplanne() {
     const updated = { ...jobDetail, [field]: value };
     setJobDetail(updated);
 
-    fetch(`http://localhost:5000/api/jobs/${selectedJob}`, {
+    fetch(`/api/jobs/${selectedJob}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: value }),
@@ -99,12 +99,12 @@ export default function Produksieplanne() {
       .then(() => {
         // If the completed field was changed, update all tasks for this job
         if (field === "completed") {
-          fetch(`http://localhost:5000/api/tasks/by-job/${selectedJob}`)
+          fetch(`/api/tasks/by-job/${selectedJob}`)
             .then((res) => res.json())
             .then((tasks) => {
               Promise.all(
                 tasks.map((task: any) =>
-                  fetch(`http://localhost:5000/api/tasks/${task.id}`, {
+                  fetch(`/api/tasks/${task.id}`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ completed: value }),
@@ -124,7 +124,7 @@ export default function Produksieplanne() {
 
   const refetchJobDetail = () => {
     if (selectedJob) {
-      fetch(`http://localhost:5000/api/jobs/${selectedJob}`)
+      fetch(`/api/jobs/${selectedJob}`)
         .then((res) => res.json())
         .then(setJobDetail)
         .catch(() => setJobDetail(null));
@@ -203,17 +203,14 @@ export default function Produksieplanne() {
                 className="px-4 py-2 bg-nmi-accent text-white rounded"
                 onClick={async () => {
                   setCreatingJob(true);
-                  const res = await fetch(
-                    "http://localhost:5000/api/jobs/duplicate",
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        source_job_number: selectedJob,
-                        new_job_number: newJobNumber,
-                      }),
-                    }
-                  );
+                  const res = await fetch("/api/jobs/duplicate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      source_job_number: selectedJob,
+                      new_job_number: newJobNumber,
+                    }),
+                  });
                   if (res.ok) {
                     setShowDuplicateModal(false);
                     setSelectedJob(newJobNumber);
@@ -259,7 +256,7 @@ export default function Produksieplanne() {
                 onClick={async () => {
                   setCreatingJob(true);
                   // Create the job in the backend
-                  const res = await fetch("http://localhost:5000/api/jobs", {
+                  const res = await fetch("/api/jobs", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ job_number: newJobNumber }),

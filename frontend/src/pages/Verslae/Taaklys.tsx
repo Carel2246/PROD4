@@ -28,13 +28,13 @@ export default function Taaklys() {
   const [tasks, setTasks] = useState<ScheduledTask[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/reports/scheduled-tasks")
+    fetch("/api/reports/scheduled-tasks")
       .then((res) => res.json())
       .then(setTasks);
   }, []);
 
   const updateCompleted = (id: number, completed: boolean) => {
-    fetch(`http://localhost:5000/api/tasks/${id}`, {
+    fetch(`/api/tasks/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ completed }),

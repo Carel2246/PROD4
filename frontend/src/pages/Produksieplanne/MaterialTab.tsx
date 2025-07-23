@@ -12,7 +12,7 @@ export default function MaterialTab({ jobNumber }: { jobNumber: string }) {
   const [materials, setMaterials] = useState<Material[]>([]);
 
   const fetchMaterials = () => {
-    fetch(`http://localhost:5000/api/materials/by-job/${jobNumber}`)
+    fetch(`/api/materials/by-job/${jobNumber}`)
       .then((res) => res.json())
       .then(setMaterials);
   };
@@ -31,7 +31,7 @@ export default function MaterialTab({ jobNumber }: { jobNumber: string }) {
     );
     setMaterials(updated);
 
-    fetch(`http://localhost:5000/api/materials/${id}`, {
+    fetch(`/api/materials/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: value }),

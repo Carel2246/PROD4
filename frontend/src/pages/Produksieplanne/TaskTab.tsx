@@ -89,17 +89,17 @@ export default function TaskTab({
 
   // Fetch resources and groups
   useEffect(() => {
-    fetch("http://localhost:5000/api/resources")
+    fetch("/api/resources")
       .then((res) => res.json())
       .then(setResources);
-    fetch("http://localhost:5000/api/resource-groups")
+    fetch("/api/resource-groups")
       .then((res) => res.json())
       .then(setGroups);
   }, []);
 
   // Fetch tasks
   const fetchTasks = () => {
-    fetch(`http://localhost:5000/api/tasks/by-job/${jobNumber}`)
+    fetch(`/api/tasks/by-job/${jobNumber}`)
       .then((res) => res.json())
       .then((data) =>
         setTasks(
@@ -134,18 +134,18 @@ export default function TaskTab({
       sendValue = Array.isArray(value) ? value.join(",") : "";
     }
 
-    fetch(`http://localhost:5000/api/tasks/${id}`, {
+    fetch(`/api/tasks/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: sendValue }),
     })
       .then(() => {
         // After updating the task, fetch the latest tasks and update job status
-        fetch(`http://localhost:5000/api/tasks/by-job/${jobNumber}`)
+        fetch(`/api/tasks/by-job/${jobNumber}`)
           .then((res) => res.json())
           .then((data) => {
             const allCompleted = data.every((t: any) => !!t.completed);
-            fetch(`http://localhost:5000/api/jobs/${jobNumber}`, {
+            fetch(`/api/jobs/${jobNumber}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ completed: allCompleted }),
@@ -183,7 +183,7 @@ export default function TaskTab({
   // Add task
   const addTask = () => {
     setAdding(true);
-    fetch(`http://localhost:5000/api/tasks`, {
+    fetch(`/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -214,7 +214,7 @@ export default function TaskTab({
   // Delete task
   const deleteTask = (id: number) => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
-    fetch(`http://localhost:5000/api/tasks/${id}`, {
+    fetch(`/api/tasks/${id}`, {
       method: "DELETE",
     }).then(fetchTasks);
   };
