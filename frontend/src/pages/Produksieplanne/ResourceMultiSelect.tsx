@@ -18,7 +18,7 @@ export default function ResourceMultiSelect({
   const [options, setOptions] = useState<Resource[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/resources")
+    fetch("/api/resources")
       .then((res) => res.json())
       .then((data) =>
         setOptions(

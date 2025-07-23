@@ -27,14 +27,14 @@ export default function Hulpbronne() {
   const [groupByType, setGroupByType] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/resources")
+    fetch("/api/resources")
       .then((res) => res.json())
       .then(setResources);
   }, []);
 
   const handleAdd = async () => {
     if (!newResource.name) return;
-    const res = await fetch("http://localhost:5000/api/resources", {
+    const res = await fetch("/api/resources", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newResource),
@@ -50,7 +50,7 @@ export default function Hulpbronne() {
   };
 
   const saveEdit = async (id: number) => {
-    await fetch(`http://localhost:5000/api/resources/${id}`, {
+    await fetch(`/api/resources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editRow),
@@ -71,7 +71,7 @@ export default function Hulpbronne() {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:5000/api/resources/${id}`, {
+    await fetch(`/api/resources/${id}`, {
       method: "DELETE",
     });
     setResources((r) => r.filter((row) => row.id !== id));

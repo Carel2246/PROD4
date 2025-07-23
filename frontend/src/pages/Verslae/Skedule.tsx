@@ -38,7 +38,7 @@ export default function Skedule() {
 
   useEffect(() => {
     console.log("Fetching with days:", days);
-    fetch(`http://localhost:5000/api/reports/resource-schedule?days=${days}`)
+    fetch(`/api/reports/resource-schedule?days=${days}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Received data:", data);

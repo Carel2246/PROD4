@@ -37,11 +37,11 @@ export default function Verlof() {
 
   // Fetch holidays and resources
   useEffect(() => {
-    fetch("http://localhost:5000/api/holidays")
+    fetch("/api/holidays")
       .then((res) => res.json())
       .then(setHolidays);
 
-    fetch("http://localhost:5000/api/resources")
+    fetch("/api/resources")
       .then((res) => res.json())
       .then(setResources);
   }, []);
@@ -76,7 +76,7 @@ export default function Verlof() {
     if (!newHoliday.date || !newHoliday.resourceId) return;
     // Store as {"3": 1}
     const resourcesObj = { [newHoliday.resourceId]: 1 };
-    const res = await fetch("http://localhost:5000/api/holidays", {
+    const res = await fetch("/api/holidays", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -101,7 +101,7 @@ export default function Verlof() {
   };
 
   const saveEdit = async (id: number) => {
-    await fetch(`http://localhost:5000/api/holidays/${id}`, {
+    await fetch(`/api/holidays/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -131,7 +131,7 @@ export default function Verlof() {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:5000/api/holidays/${id}`, {
+    await fetch(`/api/holidays/${id}`, {
       method: "DELETE",
     });
     setHolidays((h) => h.filter((row) => row.id !== id));

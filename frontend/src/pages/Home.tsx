@@ -15,7 +15,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/jobs/incomplete")
+    fetch("/api/jobs/incomplete")
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();

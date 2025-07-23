@@ -8,7 +8,15 @@ type CalendarEntry = {
   end_time: string;
 };
 
-const weekdayNames = ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"];
+const weekdayNames = [
+  "Sondag",
+  "Maandag",
+  "Dinsdag",
+  "Woensdag",
+  "Donderdag",
+  "Vrydag",
+  "Saterdag",
+];
 
 export default function Werksure() {
   const [calendar, setCalendar] = useState<CalendarEntry[]>([]);
@@ -16,8 +24,8 @@ export default function Werksure() {
   const [editRow, setEditRow] = useState<Partial<CalendarEntry>>({});
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/calendar")
-      .then(res => res.json())
+    fetch("/api/calendar")
+      .then((res) => res.json())
       .then(setCalendar);
   }, []);
 
@@ -28,13 +36,15 @@ export default function Werksure() {
 
   const saveEdit = async () => {
     if (editingId == null) return;
-    await fetch(`http://localhost:5000/api/calendar/${editingId}`, {
+    await fetch(`/api/calendar/${editingId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editRow),
     });
-    setCalendar(c =>
-      c.map(row => (row.id === editingId ? { ...row, ...editRow } as CalendarEntry : row))
+    setCalendar((c) =>
+      c.map((row) =>
+        row.id === editingId ? ({ ...row, ...editRow } as CalendarEntry) : row
+      )
     );
     setEditingId(null);
     setEditRow({});
@@ -54,16 +64,23 @@ export default function Werksure() {
             </tr>
           </thead>
           <tbody>
-            {calendar.map(entry =>
+            {calendar.map((entry) =>
               editingId === entry.id ? (
                 <tr key={entry.id}>
                   <td className="table-cell">
                     <select
                       value={editRow.weekday}
-                      onChange={e => setEditRow(r => ({ ...r, weekday: Number(e.target.value) }))}
+                      onChange={(e) =>
+                        setEditRow((r) => ({
+                          ...r,
+                          weekday: Number(e.target.value),
+                        }))
+                      }
                     >
                       {weekdayNames.map((name, idx) => (
-                        <option key={idx} value={idx}>{name}</option>
+                        <option key={idx} value={idx}>
+                          {name}
+                        </option>
                       ))}
                     </select>
                   </td>
@@ -71,18 +88,27 @@ export default function Werksure() {
                     <input
                       type="time"
                       value={editRow.start_time}
-                      onChange={e => setEditRow(r => ({ ...r, start_time: e.target.value }))}
+                      onChange={(e) =>
+                        setEditRow((r) => ({
+                          ...r,
+                          start_time: e.target.value,
+                        }))
+                      }
                     />
                   </td>
                   <td className="table-cell">
                     <input
                       type="time"
                       value={editRow.end_time}
-                      onChange={e => setEditRow(r => ({ ...r, end_time: e.target.value }))}
+                      onChange={(e) =>
+                        setEditRow((r) => ({ ...r, end_time: e.target.value }))
+                      }
                     />
                   </td>
                   <td className="table-cell">
-                    <button onClick={saveEdit} className="text-nmi-accent">Stoor</button>
+                    <button onClick={saveEdit} className="text-nmi-accent">
+                      Stoor
+                    </button>
                   </td>
                 </tr>
               ) : (
@@ -91,7 +117,12 @@ export default function Werksure() {
                   <td className="table-cell">{entry.start_time}</td>
                   <td className="table-cell">{entry.end_time}</td>
                   <td className="table-cell">
-                    <button onClick={() => startEdit(entry)} className="text-nmi-accent">Wysig</button>
+                    <button
+                      onClick={() => startEdit(entry)}
+                      className="text-nmi-accent"
+                    >
+                      Wysig
+                    </button>
                   </td>
                 </tr>
               )
