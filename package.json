@@ -1,6 +1,15 @@
 {
+  "name": "prod4-root",
+  "private": true,
   "dependencies": {
     "react-flow-renderer": "^10.3.17",
     "xlsx": "^0.18.5"
+  },
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install && npx tsc",
+    "start": "node backend/dist/index.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
