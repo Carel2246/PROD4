@@ -17,6 +17,16 @@ router.get("/by-job/:jobNumber", async (req, res) => {
   }
 });
 
+// Get all tasks
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM task ORDER BY id ASC`);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
+});
+
 // Create new task
 router.post("/", async (req, res) => {
   const {

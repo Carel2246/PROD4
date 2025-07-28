@@ -46,8 +46,9 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query("DELETE FROM resource WHERE id = $1", [id]);
-    res.json({ success: true });
-  } catch (error) {
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("Failed to delete resource:", err);
     res.status(500).json({ error: "Failed to delete resource" });
   }
 });

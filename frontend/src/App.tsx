@@ -7,6 +7,7 @@ import Groepe from "./pages/Groepe";
 import Produksieplanne from "./pages/Produksieplanne/Produksieplanne";
 import VerslaeTaaklys from "./pages/Verslae/Taaklys";
 import VerslaeSkedule from "./pages/Verslae/Skedule";
+import RuilHulpbronne from "./pages/RuilHulpbronne";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/produksieplanne" element={<Produksieplanne />} />
         <Route path="/verslae/taaklys" element={<VerslaeTaaklys />} />
         <Route path="/verslae/skedule" element={<VerslaeSkedule />} />
+        <Route path="/ruil-hulpbronne" element={<RuilHulpbronne />} />
         {/* Add more routes here as new pages are created */}
       </Routes>
     </BrowserRouter>

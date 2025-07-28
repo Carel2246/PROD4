@@ -156,6 +156,12 @@ export default function Hulpbronne() {
           </button>
         </div>
       </div>
+      <button
+        className="px-4 py-2 border rounded border-nmi-accent text-nmi-accent bg-white hover:bg-nmi-accent hover:text-white transition mb-4"
+        onClick={() => (window.location.href = "/ruil-hulpbronne")}
+      >
+        Ruil hulpbronne
+      </button>
       {/* Resources Table */}
       <div className="flex items-center mb-2">
         <label className="flex items-center gap-2">

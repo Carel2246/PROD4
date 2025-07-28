@@ -180,4 +180,13 @@ router.post("/duplicate", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM job ORDER BY id ASC");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch jobs" });
+  }
+});
+
 export default router;
