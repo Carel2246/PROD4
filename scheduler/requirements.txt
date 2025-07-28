@@ -1,1 +1,3 @@
-ortools 
+ortools
+PySide6
+psycopg2-binary
