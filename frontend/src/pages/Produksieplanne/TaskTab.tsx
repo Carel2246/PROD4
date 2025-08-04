@@ -22,7 +22,8 @@ type Task = {
   setup_time: number;
   time_each: number;
   predecessors: string[];
-  resources: string[]; // array of resource and group names
+  resources: string[];
+  busy: boolean; // <-- Add busy property
 };
 
 function parseStringArray(str: string | null | undefined): string[] {
@@ -108,6 +109,7 @@ export default function TaskTab({
               ...t,
               predecessors: parseStringArray(t.predecessors),
               resources: parseStringArray(t.resources),
+              busy: !!t.busy, // <-- Ensure busy is boolean
             }))
             .sort(
               (a: any, b: any) =>
@@ -260,6 +262,10 @@ export default function TaskTab({
               <th className="p-2 text-green-600" title="Voltooi">
                 ✅
               </th>
+              <th className="p-2 text-blue-600" title="Besig">
+                🟦
+              </th>
+              <th className="p-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -390,6 +396,14 @@ export default function TaskTab({
                       updateTask(task.id, "completed", !task.completed)
                     }
                     aria-label="Voltooi"
+                  />
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={!!task.busy}
+                    onChange={() => updateTask(task.id, "busy", !task.busy)}
+                    aria-label="Besig"
                   />
                 </td>
                 <td className="p-2">

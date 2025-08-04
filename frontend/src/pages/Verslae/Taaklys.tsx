@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout"; // Adjust path if needed
 
 type ScheduledTask = {
-  id: number; // Added this line
+  id: number;
   task_number: string;
   job_description: string;
   customer: string;
@@ -11,14 +11,16 @@ type ScheduledTask = {
   end_time: string;
   resources_used: string;
   completed: boolean;
-  task_description: string; // Added this line
+  busy: boolean; // <-- Add busy property
+  task_description: string;
 };
 
-function formatDate(dateStr: string) {
+function formatDateLocal(dateStr: string) {
   if (!dateStr) return "";
+  // Parse as UTC and display as local time (Afrikaans format)
   const d = new Date(dateStr);
   const dd = String(d.getDate()).padStart(2, "0");
-  const mmm = d.toLocaleString("en-US", { month: "short" });
+  const mmm = d.toLocaleString("af-ZA", { month: "short" });
   const hh = String(d.getHours()).padStart(2, "0");
   const min = String(d.getMinutes()).padStart(2, "0");
   return `${dd} ${mmm} ${hh}:${min}`;
@@ -45,6 +47,16 @@ export default function Taaklys() {
     });
   };
 
+  const updateBusy = (id: number, busy: boolean) => {
+    fetch(`/api/tasks/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ busy }),
+    }).then(() => {
+      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, busy } : t)));
+    });
+  };
+
   return (
     <Layout>
       <div className="card p-4 mt-4">
@@ -59,6 +71,7 @@ export default function Taaklys() {
               <th className="p-2 text-left">Einde</th>
               <th className="p-2 text-left">Hulpbronne</th>
               <th className="p-2 text-left">Voltooi</th>
+              <th className="p-2 text-left">Besig</th> {/* Busy column */}
             </tr>
           </thead>
           <tbody>
@@ -76,14 +89,21 @@ export default function Taaklys() {
                     {t.job_description} - {t.customer}
                   </td>
                   <td className="p-2">{t.task_description}</td>
-                  <td className="p-2">{formatDate(t.start_time)}</td>
-                  <td className="p-2">{formatDate(t.end_time)}</td>
+                  <td className="p-2">{formatDateLocal(t.start_time)}</td>
+                  <td className="p-2">{formatDateLocal(t.end_time)}</td>
                   <td className="p-2">{t.resources_used}</td>
                   <td className="p-2 text-center">
                     <input
                       type="checkbox"
                       checked={!!t.completed}
                       onChange={() => updateCompleted(t.id, !t.completed)}
+                    />
+                  </td>
+                  <td className="p-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={!!t.busy}
+                      onChange={() => updateBusy(t.id, !t.busy)}
                     />
                   </td>
                 </tr>
