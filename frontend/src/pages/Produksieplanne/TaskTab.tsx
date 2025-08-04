@@ -253,8 +253,8 @@ export default function TaskTab({
             <tr className="bg-nmi-dark text-nmi-accent">
               <th className="p-2">#</th>
               <th className="p-2">Beskrywing</th>
-              <th className="p-2">Opstel (u)</th>
-              <th className="p-2">Tyd Elk (u)</th>
+              <th className="p-2">Opstel (min)</th>
+              <th className="p-2">Tyd Elk (min)</th>
               <th className="p-2">Afhanklikhede</th>
               <th className="p-2">Hulpbronne</th>
               <th className="p-2 text-green-600" title="Voltooi">
