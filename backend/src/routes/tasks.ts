@@ -39,13 +39,14 @@ router.post("/", async (req, res) => {
     resources,
     completed,
     completed_at,
+    busy,
   } = req.body;
 
   try {
     const result = await pool.query(
       `INSERT INTO task
-        (job_number, task_number, description, setup_time, time_each, predecessors, resources, completed, completed_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        (job_number, task_number, description, setup_time, time_each, predecessors, resources, completed, completed_at, busy)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       [
         job_number,
@@ -57,6 +58,7 @@ router.post("/", async (req, res) => {
         resources,
         completed ?? false,
         completed_at,
+        busy ?? false,
       ]
     );
     res.json(result.rows[0]);
@@ -80,6 +82,7 @@ router.patch("/:taskId", async (req, res) => {
     "resources",
     "completed",
     "completed_at",
+    "busy",
   ];
 
   const fields = Object.keys(updates).filter((f) => editableFields.includes(f));

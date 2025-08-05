@@ -1,18 +1,15 @@
-from ortools.sat.python import cp_model
-from gui import SchedulerGUI
-from scheduler import load_data, schedule
-from PySide6.QtWidgets import QApplication
+"""
+Hoofinskrywing vir die Skeduleerder GUI-toepassing.
+"""
 import sys
-
-def schedule_callback(start_date, x1, x2):
-    jobs, tasks, resource_mapping, resource_group_mapping, calendar, holidays = load_data()
-    return schedule(jobs, tasks, resource_mapping, resource_group_mapping, calendar, holidays, start_date, x1, x2)
-
-def main():
-    app = QApplication(sys.argv)
-    window = SchedulerGUI(schedule_callback)
-    window.show()
-    sys.exit(app.exec())
+from PySide6.QtWidgets import QApplication
+from gui import ScheduleWindow
 
 if __name__ == "__main__":
-    main()
+    # Skep die Qt-toepassing
+    app = QApplication(sys.argv)
+    # Skep en wys die hoofvenster
+    window = ScheduleWindow()
+    window.show()
+    # Voer die hoof Qt-lus uit
+    sys.exit(app.exec())

@@ -52,9 +52,17 @@ export default function Taaklys() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ busy }),
-    }).then(() => {
-      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, busy } : t)));
-    });
+    })
+      .then((res) => res.json())
+      .then((updatedTask) => {
+        // Update only the changed task in local state for instant UI feedback
+        setTasks((prev) =>
+          prev.map((t) => (t.id === id ? { ...t, busy: updatedTask.busy } : t))
+        );
+      })
+      .catch(() => {
+        // Optionally show an error message here
+      });
   };
 
   return (
@@ -96,7 +104,12 @@ export default function Taaklys() {
                     <input
                       type="checkbox"
                       checked={!!t.completed}
-                      onChange={() => updateCompleted(t.id, !t.completed)}
+                      onChange={() => {
+                        updateCompleted(t.id, !t.completed);
+                        if (!t.completed && t.busy) {
+                          updateBusy(t.id, false);
+                        }
+                      }}
                     />
                   </td>
                   <td className="p-2 text-center">

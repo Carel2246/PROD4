@@ -8,3 +8,7 @@ def get_connection():
         password="dXCwCluFm8*PYK",
         port=5432
     )
+
+if __name__ == "__main__":
+    conn = get_connection()
+    print("DB connected:", conn.closed == 0)

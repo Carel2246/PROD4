@@ -65,7 +65,6 @@ function savePredecessors(input: string, jobNumber: string): string[] {
 
 export default function TaskTab({
   jobNumber,
-  onJobStatusChange,
   refreshTasksTrigger,
 }: {
   jobNumber: string;
@@ -126,11 +125,6 @@ export default function TaskTab({
 
   // Update task
   const updateTask = (id: number, field: keyof Task, value: any) => {
-    const updated = tasks.map((t) =>
-      t.id === id ? { ...t, [field]: value } : t
-    );
-    setTasks(updated);
-
     let sendValue = value;
     if (field === "predecessors" || field === "resources") {
       sendValue = Array.isArray(value) ? value.join(",") : "";
@@ -143,33 +137,15 @@ export default function TaskTab({
     })
       .then(() => {
         // After updating the task, fetch the latest tasks and update job status
-        fetch(`/api/tasks/by-job/${jobNumber}`)
-          .then((res) => res.json())
-          .then((data) => {
-            const allCompleted = data.every((t: any) => !!t.completed);
-            fetch(`/api/jobs/${jobNumber}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ completed: allCompleted }),
-            })
-              .then(() => {
-                if (onJobStatusChange) onJobStatusChange();
-              })
-              .catch(console.error);
-            setTasks(
-              data
-                .map((t: any) => ({
-                  ...t,
-                  predecessors: parseStringArray(t.predecessors),
-                  resources: parseStringArray(t.resources),
-                }))
-                .sort(
-                  (a: any, b: any) =>
-                    parseInt(getSequence(a.task_number)) -
-                    parseInt(getSequence(b.task_number))
-                )
-            );
-          });
+        fetchTasks();
+        if (field === "completed" && value === true) {
+          // If completed is set to true, also set busy to false
+          fetch(`/api/tasks/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ busy: false }),
+          }).then(fetchTasks);
+        }
       })
       .catch(console.error);
   };

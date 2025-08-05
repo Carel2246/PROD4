@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS public.task
     resources character varying(255) COLLATE pg_catalog."default" NOT NULL,
     completed boolean NOT NULL DEFAULT false,
     completed_at timestamp without time zone,
+    busy boolean NOT NULL DEFAULT false,
     CONSTRAINT task_pkey PRIMARY KEY (id),
     CONSTRAINT task_task_number_key UNIQUE (task_number)
 );
