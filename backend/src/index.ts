@@ -12,8 +12,23 @@ import reportsRouter from "./routes/reports.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import pg from "pg";
 
-dotenv.config();
+dotenv.config();  // Load from backend/.env
+
+// DB test with individual options
+const { Pool } = pg;
+const pool = new Pool({
+  host: 'localhost',
+  port: 5432,
+  database: 'prod4_dev',
+  user: 'postgres',
+  password: 'test123',
+});
+pool.query('SELECT 1', (err) => {
+  if (err) console.error('❌ Failed to connect to DB:', err);
+  else console.log('✅ DB connected');
+});
 
 // Add these lines at the top if using ES modules:
 const __filename = fileURLToPath(import.meta.url);
@@ -22,10 +37,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use("/api/health", healthRouter);

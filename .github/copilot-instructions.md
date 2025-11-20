@@ -12,7 +12,14 @@
 
 - **Database:** Centralized Azure PostgreSQL. Both backend and scheduler use direct SQL queries for CRUD and scheduling data. Schema: `verwysing/schema.sql`.
 - **Frontend/Backend:** Frontend fetches data via REST API (`/api/*`). Backend PATCH endpoints support updating resources and other fields for tasks/jobs. All API routes in `backend/src/routes/`.
-- **Scheduler:** Python scheduler loads jobs/tasks/resources directly from DB, not via backend API. Scheduling logic in `scheduler/scheduler.py` (uses OR-tools (CP-SAT) for advanced job shop scheduling, resolves resource groups to available resources, respects predecessors, holidays, working hours).
+- **Scheduler:** Python scheduler loads jobs/tasks/resources directly from DB, not via backend API. Scheduling logic in `scheduler/scheduler.py` (uses OR-tools (CP-SAT) for advanced job shop scheduling, resolves resource groups to available resources, respects predecessors, holidays, working hours).  
+  **Scheduling rules:**
+  - Working hours are found in the `calendar` table (`weekday`, `start_time`, `end_time`).
+  - The `resources` column of a task can contain multiple comma-separated values. Each value can correspond to the name of a `[resource]` or a `[resource_group]`.
+    - If it matches a `[resource]`, that resource must be assigned.
+    - If it matches a `[resource_group]`, the resource from that group (found in `[resource_group_association]`) that results in the best schedule should be assigned.
+  - All resources must be satisfied for a task to start (if 3 resources are required, all 3 must be available).
+  - All predecessors must be satisfied (if 3 predecessors are required, all 3 must be scheduled to be completed before the task can start).
 
 ## Developer Workflows
 
@@ -55,8 +62,35 @@
 
 ---
 
+**Scheduling Logic Reference (Python Scheduler):**
+
+- **Werksure (Working Hours):**
+
+  - Found in the `calendar` table (`weekday`, `start_time`, `end_time`).
+  - Used to determine when resources are available for scheduling.
+
+- **Resources for Tasks:**
+
+  - The `resources` column in the `task` table can contain multiple comma-separated values.
+  - Each value can be:
+    - The name of a `resource` (from the `resource` table): assign that specific resource.
+    - The name of a `resource_group` (from the `resource_group` table): assign the best available resource from that group (using `resource_group_association`).
+      - "Best" means the resource that results in the earliest feasible schedule.
+
+- **Resource Assignment:**
+
+  - All resources listed for a task must be assigned and available for the task to start.
+  - If a task requires multiple resources/groups, all must be satisfied simultaneously.
+
+- **Predecessor Constraints:**
+  - The `predecessors` column in the `task` table can contain multiple comma-separated values (task_numbers).
+  - All listed predecessors must be scheduled to complete before the current task can start.
+  - If a predecessor is already completed, it does not block scheduling.
+
+---
+
 **Feedback Requested:**
 
 - Are there any undocumented workflows, conventions, or integration points?
 - Is any part of the architecture or workflow unclear or missing?
-- Please specify any custom scripts, environment variables, or deployment steps not covered above.
+- Please specify any custom scripts, environment variables, or deployment steps
