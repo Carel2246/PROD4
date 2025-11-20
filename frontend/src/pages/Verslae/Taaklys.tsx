@@ -17,8 +17,8 @@ type ScheduledTask = {
 
 function formatDateLocal(dateStr: string) {
   if (!dateStr) return "";
-  // Parse as UTC and display as local time (Afrikaans format)
-  const d = new Date(dateStr);
+  // Parse as UTC (append 'Z' to treat as UTC) and display as local time (Afrikaans format)
+  const d = new Date(dateStr.replace(" ", "T") + "Z"); // Assumes format like 'YYYY-MM-DD HH:MM:SS'
   const dd = String(d.getDate()).padStart(2, "0");
   const mmm = d.toLocaleString("af-ZA", { month: "short" });
   const hh = String(d.getHours()).padStart(2, "0");
