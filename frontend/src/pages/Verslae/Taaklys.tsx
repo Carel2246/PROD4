@@ -17,13 +17,13 @@ type ScheduledTask = {
 
 function formatDateLocal(dateStr: string) {
   if (!dateStr) return "";
-  // Parse as UTC (append 'Z' to treat as UTC) and display as local time (Afrikaans format)
-  const d = new Date(dateStr.replace(" ", "T") + "Z"); // Assumes format like 'YYYY-MM-DD HH:MM:SS'
+  // Parse the date string as-is (no timezone adjustment) and format as DD/MM HH:MM
+  const d = new Date(dateStr.replace(" ", "T")); // Assumes format like 'YYYY-MM-DD HH:MM:SS'
   const dd = String(d.getDate()).padStart(2, "0");
-  const mmm = d.toLocaleString("af-ZA", { month: "short" });
+  const mm = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
   const hh = String(d.getHours()).padStart(2, "0");
   const min = String(d.getMinutes()).padStart(2, "0");
-  return `${dd} ${mmm} ${hh}:${min}`;
+  return `${dd}/${mm} ${hh}:${min}`;
 }
 
 export default function Taaklys() {
@@ -32,8 +32,31 @@ export default function Taaklys() {
   useEffect(() => {
     fetch("/api/reports/scheduled-tasks")
       .then((res) => res.json())
-      .then(setTasks);
+      .then((data) => {
+        setTasks(data);
+      });
   }, []);
+
+  // Compute late jobs: group by job_description, check if max end_time > promised_date
+  const lateJobs = new Set<string>();
+  const jobGroups: { [key: string]: ScheduledTask[] } = {};
+  tasks.forEach((t) => {
+    if (!jobGroups[t.job_description]) jobGroups[t.job_description] = [];
+    jobGroups[t.job_description].push(t);
+  });
+  Object.values(jobGroups).forEach((jobTasks) => {
+    const maxEnd = Math.max(
+      ...jobTasks
+        .map((t) => (t.end_time ? new Date(t.end_time).getTime() : 0))
+        .filter((time) => time > 0)
+    );
+    const promised = jobTasks[0].promised_date
+      ? new Date(jobTasks[0].promised_date).getTime()
+      : 0;
+    if (maxEnd > promised && promised > 0) {
+      lateJobs.add(jobTasks[0].job_description);
+    }
+  });
 
   const updateCompleted = (id: number, completed: boolean) => {
     fetch(`/api/tasks/${id}`, {
@@ -84,10 +107,7 @@ export default function Taaklys() {
           </thead>
           <tbody>
             {tasks.map((t) => {
-              const isLate =
-                t.end_time && t.promised_date
-                  ? new Date(t.end_time) > new Date(t.promised_date)
-                  : false;
+              const isLate = lateJobs.has(t.job_description);
               return (
                 <tr key={t.task_number} className="border-t">
                   <td className="p-2">{t.task_number}</td>
