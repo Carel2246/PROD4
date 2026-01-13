@@ -34,6 +34,7 @@ export default function Produksieplanne() {
   const [activeTab, setActiveTab] = useState<"tasks" | "materials">("tasks");
   const [refreshTasksFlag, setRefreshTasksFlag] = useState(false);
   const [priceEachInput, setPriceEachInput] = useState<string>("");
+  const [validationStatus, setValidationStatus] = useState<"ok" | null>(null);
 
   const location = useLocation();
 
@@ -99,6 +100,7 @@ export default function Produksieplanne() {
 
     const updated = { ...jobDetail, [field]: value };
     setJobDetail(updated);
+    setValidationStatus(null); // Reset validation status on data change
 
     fetch(`/api/jobs/${selectedJob}`, {
       method: "PATCH",
@@ -138,6 +140,62 @@ export default function Produksieplanne() {
         .then(setJobDetail)
         .catch(() => setJobDetail(null));
     }
+  };
+
+  const handleValidateData = () => {
+    if (!jobDetail) return;
+
+    fetch(`/api/tasks/by-job/${jobDetail.job_number}`)
+      .then((res) => res.json())
+      .then((tasks) => {
+        Promise.all([
+          fetch("/api/resources").then((r) => r.json()),
+          fetch("/api/resourceGroups").then((r) => r.json()),
+        ])
+          .then(([resources, groups]) => {
+            const resourceNames = new Set(resources.map((r: any) => r.name));
+            const groupNames = new Set(groups.map((g: any) => g.name));
+
+            let issues = [];
+            for (const task of tasks) {
+              // Check for self-reference in predecessors
+              if (task.predecessors) {
+                const preds = task.predecessors
+                  .split(",")
+                  .map((p: string) => p.trim());
+                if (preds.includes(task.task_number)) {
+                  issues.push({ task, type: "circular" });
+                }
+              }
+              // Check invalid resources
+              if (task.resources) {
+                const resList = task.resources
+                  .split(",")
+                  .map((r: string) => r.trim());
+                for (const res of resList) {
+                  if (!resourceNames.has(res) && !groupNames.has(res)) {
+                    issues.push({
+                      task,
+                      type: "invalid_resource",
+                      resource: res,
+                    });
+                  }
+                }
+              }
+            }
+
+            if (issues.length === 0) {
+              setValidationStatus("ok");
+            } else {
+              // Open TaskEdit for the first issue
+              const firstIssue = issues[0];
+              window.open(`/taskedit?taskId=${firstIssue.task.id}`, "_blank");
+              setValidationStatus(null);
+            }
+          })
+          .catch((err) => console.error("Validation fetch failed:", err));
+      })
+      .catch((err) => console.error("Tasks fetch failed:", err));
   };
 
   return (
@@ -295,9 +353,20 @@ export default function Produksieplanne() {
         selectedJob !== "__create" &&
         jobDetail && (
           <div className="mt-8 card p-4">
-            <h2 className="text-lg font-semibold text-nmi-dark mb-4">
-              PP Detail
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-nmi-dark">PP Detail</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={handleValidateData}
+                >
+                  Gaan data na
+                </button>
+                {validationStatus === "ok" && (
+                  <span className="text-green-500 font-semibold">Data OK</span>
+                )}
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <FormRow label="PP Nommer">

@@ -6,6 +6,7 @@ import Hulpbronne from "./pages/Hulpbronne";
 import Groepe from "./pages/Groepe";
 import Produksieplanne from "./pages/Produksieplanne/Produksieplanne";
 import Plangeskiedenis from "./pages/Produksieplanne/Plangeskiedenis";
+import TaskEdit from "./pages/Produksieplanne/TaskEdit";
 import VerslaeTaaklys from "./pages/Verslae/Taaklys";
 import VerslaeSkedule from "./pages/Verslae/Skedule";
 import RuilHulpbronne from "./pages/RuilHulpbronne";
@@ -21,6 +22,7 @@ function App() {
         <Route path="/groepe" element={<Groepe />} />
         <Route path="/produksieplanne" element={<Produksieplanne />} />
         <Route path="/plangeskiedenis" element={<Plangeskiedenis />} />
+        <Route path="/taskedit" element={<TaskEdit />} />
         <Route path="/verslae/taaklys" element={<VerslaeTaaklys />} />
         <Route path="/verslae/skedule" element={<VerslaeSkedule />} />
         <Route path="/ruil-hulpbronne" element={<RuilHulpbronne />} />
