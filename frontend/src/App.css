@@ -56,3 +56,24 @@
   background-color: var(--nmi-light);
   color: black;
 }
+
+/* Button styles for Plangeskiedenis */
+.btn-duplicate {
+  background-color: #808080; /* grey */
+  color: #ffa500; /* orange */
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #ffa500; /* orange */
+  color: #808080; /* grey */
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}

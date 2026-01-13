@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
+import { Link, useNavigate } from "react-router-dom";
 
 type JobDetail = {
   job_number: string;
@@ -27,6 +28,8 @@ export default function Plangeskiedenis() {
     string | null
   >(null);
   const [newJobNumber, setNewJobNumber] = useState("");
+
+  const navigate = useNavigate();
 
   const fetchJobs = () => {
     fetch("/api/jobs")
@@ -215,7 +218,13 @@ export default function Plangeskiedenis() {
                       className="w-full p-1 border border-gray-300"
                     />
                   ) : (
-                    job.job_number
+                    <Link
+                      to="/produksieplanne"
+                      state={{ selectedJob: job.job_number }}
+                      className="text-blue-500 underline"
+                    >
+                      {job.job_number}
+                    </Link>
                   )}
                 </td>
                 <td className="border border-gray-300 p-2">
@@ -310,7 +319,7 @@ export default function Plangeskiedenis() {
                 <td className="border border-gray-300 p-2">
                   <div className="flex gap-2">
                     <button
-                      className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                      className="btn-duplicate"
                       onClick={() => {
                         setSelectedJobForDuplicate(job.job_number);
                         setShowDuplicateModal(true);
@@ -338,7 +347,7 @@ export default function Plangeskiedenis() {
                       </>
                     ) : (
                       <button
-                        className="px-2 py-1 bg-yellow-500 text-white rounded text-xs"
+                        className="btn-edit"
                         onClick={() => {
                           setEditingJob(job.job_number);
                           setEditedValues({ ...job });
@@ -391,7 +400,9 @@ export default function Plangeskiedenis() {
                   if (res.ok) {
                     setShowDuplicateModal(false);
                     setNewJobNumber("");
-                    fetchJobs();
+                    navigate("/produksieplanne", {
+                      state: { selectedJob: newJobNumber },
+                    });
                   } else {
                     alert("Kon nie dupliseer nie.");
                   }

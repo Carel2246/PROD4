@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import TaskTab from "../Produksieplanne/TaskTab";
 import MaterialTab from "../Produksieplanne/MaterialTab";
+import { useLocation } from "react-router-dom";
 
 type JobDropdownItem = {
   job_number: string;
@@ -33,6 +34,8 @@ export default function Produksieplanne() {
   const [activeTab, setActiveTab] = useState<"tasks" | "materials">("tasks");
   const [refreshTasksFlag, setRefreshTasksFlag] = useState(false);
   const [priceEachInput, setPriceEachInput] = useState<string>("");
+
+  const location = useLocation();
 
   // Fetch dropdown list of jobs
   const fetchJobs = () => {
@@ -66,6 +69,12 @@ export default function Produksieplanne() {
   useEffect(() => {
     fetchJobs();
   }, [includeCompleted, includeBlocked]);
+
+  useEffect(() => {
+    if (location.state?.selectedJob) {
+      setSelectedJob(location.state.selectedJob);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     setPriceEachInput(
