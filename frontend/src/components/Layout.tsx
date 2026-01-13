@@ -10,6 +10,7 @@ export default function Layout({ children }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [verslaeOpen, setVerslaeOpen] = useState(false);
+  const [planneOpen, setPlanneOpen] = useState(false);
 
   return (
     <div className="bg-page min-h-screen">
@@ -44,14 +45,42 @@ export default function Layout({ children }: LayoutProps) {
                 Tuisblad
               </Link>
             </li>
+            {/* Planne fly-out menu */}
             <li>
-              <Link
-                to="/produksieplanne"
-                className="text-nmi-dark hover:text-nmi-accent"
-                onClick={() => setMenuOpen(false)}
+              <button
+                className="text-nmi-dark font-semibold w-full text-left focus:outline-none"
+                onClick={() => setPlanneOpen((open) => !open)}
               >
                 Planne
-              </Link>
+              </button>
+              {planneOpen && (
+                <ul className="ml-4 mt-1 space-y-1 bg-white border-l-2 border-nmi-accent shadow-lg absolute left-44 top-0 p-2 min-w-[140px] z-40">
+                  <li>
+                    <Link
+                      to="/produksieplanne"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setPlanneOpen(false);
+                      }}
+                    >
+                      Produksieplanne
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/plangeskiedenis"
+                      className="text-nmi-dark hover:text-nmi-accent block"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setPlanneOpen(false);
+                      }}
+                    >
+                      Plangeskiedenis
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
             {/* Verslae fly-out menu */}
             <li>
