@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
 
 type Task = {
@@ -19,7 +19,9 @@ type Task = {
 export default function TaskEdit() {
   const [searchParams] = useSearchParams();
   const taskId = searchParams.get("taskId");
+  const issue = searchParams.get("issue");
   const [task, setTask] = useState<Task | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (taskId) {
@@ -29,6 +31,15 @@ export default function TaskEdit() {
         .catch((err) => console.error("Failed to fetch task:", err));
     }
   }, [taskId]);
+
+  const saveTask = () => {
+    if (!task) return;
+    return fetch("/api/tasks/" + task.id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(task),
+    });
+  };
 
   const updateField = (field: keyof Task, value: any) => {
     if (!task) return;
@@ -52,7 +63,12 @@ export default function TaskEdit() {
 
   return (
     <Layout>
-      <h1 className="page-title">Task Edit: {task.task_number}</h1>
+      <h1 className="page-title">
+        'n Probleem is gevind met die volgende taak
+      </h1>
+      <p className="text-lg mb-4">
+        Die fout lê by: {issue === "circular" ? "afhanklikhede" : "hulpbronne"}
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormRow label="Job Number">
@@ -135,7 +151,12 @@ export default function TaskEdit() {
       <div className="mt-6">
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={() => window.close()}
+          onClick={async () => {
+            await saveTask();
+            navigate("/produksieplanne", {
+              state: { selectedJob: task.job_number },
+            });
+          }}
         >
           Gaan voort
         </button>

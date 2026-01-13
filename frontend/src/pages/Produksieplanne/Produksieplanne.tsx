@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import TaskTab from "../Produksieplanne/TaskTab";
 import MaterialTab from "../Produksieplanne/MaterialTab";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type JobDropdownItem = {
   job_number: string;
@@ -37,6 +37,7 @@ export default function Produksieplanne() {
   const [validationStatus, setValidationStatus] = useState<"ok" | null>(null);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Fetch dropdown list of jobs
   const fetchJobs = () => {
@@ -76,6 +77,11 @@ export default function Produksieplanne() {
       setSelectedJob(location.state.selectedJob);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    // Reset validation status when job changes
+    setValidationStatus(null);
+  }, [selectedJob]);
 
   useEffect(() => {
     setPriceEachInput(
@@ -150,7 +156,7 @@ export default function Produksieplanne() {
       .then((tasks) => {
         Promise.all([
           fetch("/api/resources").then((r) => r.json()),
-          fetch("/api/resourceGroups").then((r) => r.json()),
+          fetch("/api/resource-groups").then((r) => r.json()),
         ])
           .then(([resources, groups]) => {
             const resourceNames = new Set(resources.map((r: any) => r.name));
@@ -187,9 +193,11 @@ export default function Produksieplanne() {
             if (issues.length === 0) {
               setValidationStatus("ok");
             } else {
-              // Open TaskEdit for the first issue
+              // Navigate to TaskEdit for the first issue
               const firstIssue = issues[0];
-              window.open(`/taskedit?taskId=${firstIssue.task.id}`, "_blank");
+              navigate(
+                `/taskedit?taskId=${firstIssue.task.id}&issue=${firstIssue.type}`
+              );
               setValidationStatus(null);
             }
           })

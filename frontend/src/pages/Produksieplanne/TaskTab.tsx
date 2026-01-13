@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TaskFlowchart from "./TaskFlowchart";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 type Resource = {
   id: number;
@@ -463,7 +464,9 @@ export default function TaskTab({
           </div>
         </div>
       )}
-      <TaskFlowchart tasks={tasks} />
+      <ErrorBoundary>
+        <TaskFlowchart tasks={tasks} />
+      </ErrorBoundary>
     </div>
   );
 }

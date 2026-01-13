@@ -19,11 +19,12 @@ dotenv.config();  // Load from backend/.env
 // DB test with individual options
 const { Pool } = pg;
 const pool = new Pool({
-  host: 'localhost',
+  host: 'your-azure-host.postgres.database.azure.com',  // Replace with your Azure host
   port: 5432,
-  database: 'prod4_dev',
-  user: 'postgres',
-  password: 'test123',
+  database: 'prod4_dev',  // Or your Azure database name
+  user: 'your-username@your-azure-host',  // Azure requires user@host format
+  password: 'your-password',
+  ssl: true,  // Required for Azure
 });
 pool.query('SELECT 1', (err) => {
   if (err) console.error('❌ Failed to connect to DB:', err);
