@@ -5,6 +5,7 @@ type Job = {
   job_number: string;
   description: string;
   promised_date: string;
+  scheduled_completion?: string | null;
   quantity: number;
   customer: string;
 };
@@ -45,7 +46,8 @@ export default function Home() {
               <tr>
                 <th className="table-header">Job Nommer</th>
                 <th className="table-header">Beskrywing</th>
-                <th className="table-header">Datum</th>
+                  <th className="table-header">Beloofatum</th>
+                  <th className="table-header">Geskeduleerde datum</th>
                 <th className="table-header">Hoeveelheid</th>
                 <th className="table-header">Kliënt</th>
               </tr>
@@ -58,6 +60,11 @@ export default function Home() {
                   <td className="table-cell">
                     {new Date(job.promised_date).toLocaleDateString("af-ZA")}
                   </td>
+                    <td className="table-cell">
+                      {job.scheduled_completion
+                        ? new Date(job.scheduled_completion).toLocaleDateString("af-ZA")
+                        : "-"}
+                    </td>
                   <td className="table-cell">{job.quantity}</td>
                   <td className="table-cell">{job.customer}</td>
                 </tr>

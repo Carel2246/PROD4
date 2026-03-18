@@ -5,9 +5,20 @@ const router = Router();
 
 router.get("/incomplete", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT job_number, description, promised_date, quantity, customer FROM job WHERE completed = false AND blocked = false ORDER BY promised_date ASC;"
-    );
+    const result = await pool.query(`
+      SELECT j.job_number,
+             j.description,
+             j.promised_date,
+             j.quantity,
+             j.customer,
+             MAX(s.end_time) AS scheduled_completion
+      FROM job j
+      LEFT JOIN task t ON t.job_number = j.job_number
+      LEFT JOIN schedule s ON s.task_number = t.task_number
+      WHERE j.completed = false AND j.blocked = false
+      GROUP BY j.job_number, j.description, j.promised_date, j.quantity, j.customer
+      ORDER BY j.promised_date ASC;
+    `);
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching incomplete jobs:", error);
